@@ -11,6 +11,14 @@ fn test_with_base_url() {
 	assert s == opts.base_url
 }
 
+fn test_with_accept() {
+	s := 'application/xml'
+	mut opts := Options{}
+	with_accept(s).apply(mut opts)
+
+	assert s == opts.accept
+}
+
 fn test_with_content_type() {
 	s := 'application/xml'
 	mut opts := Options{}

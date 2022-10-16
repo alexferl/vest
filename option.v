@@ -8,6 +8,7 @@ type BeforeFn = fn (mut Request) ?
 struct Options {
 mut:
 	base_url       string
+	accept         string = 'application/json, */*;q=0.5'
 	content_type   string = 'application/json'
 	auth           string
 	before_request BeforeFn = unsafe { nil }
@@ -48,6 +49,15 @@ fn new_fn_option(f fn (mut Options)) FnOption {
 pub fn with_base_url(s string) ClientOption {
 	return new_fn_option(fn [s] (mut o Options) {
 		o.base_url = s
+	})
+}
+
+// with_accept sets an Accept header that
+// will be sent with all requests.
+// Defaults to application/json, */*;q=0.5.
+pub fn with_accept(s string) ClientOption {
+	return new_fn_option(fn [s] (mut o Options) {
+		o.accept = s
 	})
 }
 

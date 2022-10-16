@@ -14,10 +14,11 @@ fn test_new_request() {
 	method := http.Method.post
 	url := 'https://example.com'
 	endpoint := '/users'
+	accept := 'application/xml'
 	content_type := 'application/xml'
 	version := http.Version.v2_0
 	headers := {
-		'Accept': 'application/json'
+		'X-Custom': 'value'
 	}
 	cookies := {
 		'key': 'val'
@@ -30,10 +31,10 @@ fn test_new_request() {
 	cert_key := 'cert.key'
 	allow_redirect := false
 
-	c := new(with_base_url(url), with_content_type(content_type), with_before_request(before),
-		with_version(version), with_headers(headers), with_cookies(cookies), with_read_timeout(read_timeout),
-		with_write_timeout(write_timeout), with_validate(validate), with_root_ca(root_ca),
-		with_cert(cert), with_cert_key(cert_key), with_allow_redirect(allow_redirect))
+	c := new(with_base_url(url), with_accept(accept), with_content_type(content_type),
+		with_before_request(before), with_version(version), with_headers(headers), with_cookies(cookies),
+		with_read_timeout(read_timeout), with_write_timeout(write_timeout), with_validate(validate),
+		with_root_ca(root_ca), with_cert(cert), with_cert_key(cert_key), with_allow_redirect(allow_redirect))
 
 	req := c.new_request(context.background(), method, endpoint, bytes.new_buffer([]u8{})) or {
 		panic(err)
@@ -43,7 +44,7 @@ fn test_new_request() {
 	assert '$url$endpoint' == req.url
 	assert content_type == req.header.get(http.CommonHeader.content_type)?
 	assert version == req.version
-	assert headers['Accept'] == req.header.get(http.CommonHeader.accept)?
+	assert headers['X-Custom'] == req.header.get_custom('X-Custom')?
 	assert cookies == req.cookies
 	assert read_timeout == req.read_timeout
 	assert write_timeout == req.write_timeout

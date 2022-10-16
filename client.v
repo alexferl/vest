@@ -54,6 +54,10 @@ pub fn (c &Client) new_request(ctx context.Context, method http.Method, url stri
 		headers[http.CommonHeader.authorization.str()] = c.opts.auth
 	}
 
+	if c.opts.accept != '' {
+		headers[http.CommonHeader.accept.str()] = c.opts.accept
+	}
+
 	if method in [http.Method.post, http.Method.put, http.Method.patch] {
 		if c.opts.content_type != '' {
 			headers[http.CommonHeader.content_type.str()] = c.opts.content_type
