@@ -1,2 +1,2 @@
 # vest
-V REST client
+REST client in [V](https://vlang.io).
