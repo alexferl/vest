@@ -2,6 +2,7 @@
 REST client in [V](https://vlang.io).
 
 # Using
+More complex examples [here](examples).
 
 ```v
 import context
