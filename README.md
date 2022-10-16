@@ -12,7 +12,7 @@ fn main() {
 		vest.with_base_url('https://httpbin.org'),
 	)
 
-	resp := c.post(context.background(), '/get') or {
+	resp := c.get(context.background(), '/get') or {
 		println(err)
 		return
 	}
