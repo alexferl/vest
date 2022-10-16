@@ -1,6 +1,11 @@
 # vest
 REST client in [V](https://vlang.io).
 
+# Installing
+```shell
+v install alexferl.vest
+```
+
 # Using
 More complex examples [here](examples).
 
