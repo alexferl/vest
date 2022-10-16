@@ -1,7 +1,7 @@
 import context
 import net.http
-import vest
-import vest.bytes
+import alexferl.vest
+import alexferl.vest.bytes
 
 fn main() {
 	c := vest.new()

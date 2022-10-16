@@ -1,8 +1,10 @@
 import context
-import vest
+import alexferl.vest
 
 fn main() {
-	cookies := {'key': 'val'}
+	cookies := {
+		'key': 'val'
+	}
 	c := vest.new(vest.with_cookies(cookies))
 
 	resp := c.get(context.background(), 'https://httpbin.org/get') or {

@@ -1,6 +1,6 @@
 import context
 import time
-import vest
+import alexferl.vest
 
 fn main() {
 	c := vest.new()

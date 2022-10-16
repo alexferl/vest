@@ -1,22 +1,20 @@
 import context
 import json
-import vest
+import alexferl.vest
 
 struct Headers {
-	accept string [json: 'Accept']
-	host string [json: 'Host']
+	accept     string [json: 'Accept']
+	host       string [json: 'Host']
 	user_agent string [json: 'User-Agent']
 }
 
 struct Response {
-	url string
+	url     string
 	headers Headers
 }
 
 fn main() {
-	c := vest.new(
-		vest.with_base_url('https://httpbin.org'),
-	)
+	c := vest.new(vest.with_base_url('https://httpbin.org'))
 
 	resp := c.get(context.background(), '/get') or {
 		eprintln(err)

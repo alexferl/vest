@@ -1,5 +1,5 @@
 import context
-import vest
+import alexferl.vest
 
 fn main() {
 	c := vest.new(vest.with_auth('Bearer token'))

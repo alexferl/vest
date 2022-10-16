@@ -1,5 +1,5 @@
 import context
-import vest
+import alexferl.vest
 
 fn before(mut req vest.Request) ? {
 	println('sending $req.method to $req.url')
