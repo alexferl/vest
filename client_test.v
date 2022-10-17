@@ -11,6 +11,10 @@ fn before(mut req Request) ? {
 	req.version = http.Version.v2_0
 }
 
+fn after(mut resp Response) ? {
+	resp.status_code = http.Status.created.int()
+}
+
 fn test_new_request() {
 	method := http.Method.post
 	url := 'https://example.com'
@@ -33,9 +37,10 @@ fn test_new_request() {
 	allow_redirect := false
 
 	c := new(with_base_url(url), with_accept(accept), with_content_type(content_type),
-		with_before_request(before), with_version(version), with_headers(headers), with_cookies(cookies),
-		with_read_timeout(read_timeout), with_write_timeout(write_timeout), with_validate(validate),
-		with_root_ca(root_ca), with_cert(cert), with_cert_key(cert_key), with_allow_redirect(allow_redirect))
+		with_before_request(before), with_after_request(after), with_version(version),
+		with_headers(headers), with_cookies(cookies), with_read_timeout(read_timeout),
+		with_write_timeout(write_timeout), with_validate(validate), with_root_ca(root_ca),
+		with_cert(cert), with_cert_key(cert_key), with_allow_redirect(allow_redirect))
 
 	req := c.new_request(context.background(), method, endpoint, bytes.new_buffer([]u8{})) or {
 		panic(err)
@@ -58,8 +63,9 @@ fn test_new_request() {
 }
 
 struct TestHandler {
-	method http.Method
-	body   string
+	method      http.Method
+	body        string
+	status_code int
 }
 
 fn (h TestHandler) handle(req http.Request) http.Response {
@@ -69,7 +75,11 @@ fn (h TestHandler) handle(req http.Request) http.Response {
 		})
 	}
 	resp.body = h.body
-	resp.status_code = http.Status.ok.int()
+	if h.status_code > 0 {
+		resp.status_code = h.status_code
+	} else {
+		resp.status_code = http.Status.ok.int()
+	}
 	return resp
 }
 
@@ -219,4 +229,17 @@ fn test_options() {
 	resp := c.options(context.background(), s.url) or { panic(err) }
 
 	assert method == resp.request.method
+}
+
+fn test_after_request() {
+	mut s := testing.new_server(TestHandler{ method: http.Method.get })
+	defer {
+		s.close()
+	}
+	s.start() or { panic(err) }
+
+	c := new(with_after_request(after))
+	resp := c.get(context.background(), s.url)?
+
+	assert http.Status.created.int() == resp.status_code
 }

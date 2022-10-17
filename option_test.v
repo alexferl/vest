@@ -36,6 +36,15 @@ fn test_with_before_request() {
 	assert before_test == opts.before_request
 }
 
+fn after_test(mut resp Response) ? {}
+
+fn test_with_after_request() {
+	mut opts := Options{}
+	with_after_request(after_test).apply(mut opts)
+
+	assert after_test == opts.after_request
+}
+
 fn test_with_auth() {
 	s := 'Bearer token'
 	mut opts := Options{}

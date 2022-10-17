@@ -120,7 +120,13 @@ pub fn (c &Client) do(mut req Request) ?&Response {
 			return req.ctx.err()
 		}
 		resp := <-resp_ch {
-			return &Response{resp, req}
+			mut r := &Response{resp, req}
+			unsafe {
+				if c.opts.after_request != nil {
+					c.opts.after_request(mut r)?
+				}
+			}
+			return r
 		}
 		err := <-err_ch {
 			return err
