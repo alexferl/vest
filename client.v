@@ -18,17 +18,17 @@ mut:
 	ctx context.Context = context.background()
 }
 
-// json will attempt to decode the body to json
-// with the provided struct.
-pub fn (r Response) json<T>() ?T {
-	return json.decode(T, r.body)
-}
-
 // Response represents the response from an HTTP request.
 pub struct Response {
 	http.Response
 pub mut:
 	request Request
+}
+
+// json will attempt to decode the body to json
+// with the provided struct.
+pub fn (r Response) json<T>() ?T {
+	return json.decode(T, r.body)
 }
 
 // new creates a new Client.
