@@ -2,6 +2,7 @@ module vest
 
 import context
 import io
+import json
 import net.http
 import v.vmod
 import bytes
@@ -15,6 +16,12 @@ pub struct Request {
 	http.Request
 mut:
 	ctx context.Context = context.background()
+}
+
+// json will attempt to decode the body to json
+// with the provided struct.
+pub fn (r Response) json<T>() ?T {
+	return json.decode(T, r.body)
 }
 
 // Response represents the response from an HTTP request.

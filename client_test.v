@@ -1,6 +1,7 @@
 module vest
 
 import context
+import json
 import net.http
 import time
 import bytes
@@ -122,6 +123,28 @@ fn test_post() {
 
 	assert method == resp.request.method
 	assert body == resp.body
+}
+
+struct Hello {
+	hello string
+}
+
+fn test_post_json() {
+	hello := Hello{
+		hello: 'world'
+	}
+	body := json.encode(hello)
+	method := http.Method.post
+	mut s := testing.new_server(TestHandler{ method: method, body: body })
+	defer {
+		s.close()
+	}
+	s.start() or { panic(err) }
+
+	c := new()
+	resp := c.post(context.background(), s.url, bytes.new_buffer(body.bytes()))?
+
+	assert hello == resp.json<Hello>()?
 }
 
 fn test_put() {

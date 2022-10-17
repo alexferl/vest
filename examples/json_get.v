@@ -1,5 +1,4 @@
 import context
-import json
 import alexferl.vest
 
 struct Headers {
@@ -21,7 +20,7 @@ fn main() {
 		return
 	}
 
-	mut r := json.decode(Response, resp.body) or {
+	mut r := resp.json<Response>() or {
 		eprintln('Failed to parse json')
 		return
 	}
