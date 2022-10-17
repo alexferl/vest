@@ -12,9 +12,10 @@ help:
 	@echo "	run pre-commit"
 
 dev:
-	ifeq (, $(shell which pre-commit))
-		$(error "No pre-commit in $(PATH), pre-commit (https://pre-commit.com) is required")
-	endif
+	@echo
+ifeq (, $(shell which pre-commit))
+	$(error "No pre-commit in $(PATH), pre-commit (https://pre-commit.com) is required")
+endif
 
 test:
 	v -stats test .
