@@ -1,19 +1,20 @@
-.PHONY: build dev test fmt pre-commit
+.PHONY: dev test fmt pre-commit
 
 .DEFAULT: help
 help:
 	@echo "make dev"
 	@echo "	setup development environment"
 	@echo "make test"
-	@echo "	run go test"
+	@echo "	run v test"
 	@echo "make fmt"
-	@echo "	run go fmt"
+	@echo "	run v fmt"
 	@echo "make pre-commit"
 	@echo "	run pre-commit"
 
 dev:
-	@type pre-commit > /dev/null || (echo "ERROR: pre-commit (https://pre-commit.com/) is required."; exit 1)
-	pre-commit install
+	ifeq (, $(shell which pre-commit))
+		$(error "No pre-commit in $(PATH), pre-commit (https://pre-commit.com) is required")
+	endif
 
 test:
 	v -stats test .
