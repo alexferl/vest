@@ -7,3 +7,5 @@ vest
 *.dylib
 *.dll
 vls.log
+
+.idea

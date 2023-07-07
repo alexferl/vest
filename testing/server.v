@@ -33,10 +33,10 @@ pub fn new_server(handler http.Handler) &Server {
 	}
 }
 
-pub fn (mut s Server) start() ? {
-	s.listener = net.listen_tcp(s.family, 'localhost:0')?
-	laddr := s.listener.addr()?
-	s.url = 'http://$laddr'
+pub fn (mut s Server) start() ! {
+	s.listener = net.listen_tcp(s.family, 'localhost:0')!
+	laddr := s.listener.addr()!
+	s.url = 'http://${laddr}'
 	s.listener.set_accept_timeout(s.accept_timeout)
 	s.set_state(.running)
 
@@ -50,7 +50,7 @@ fn (mut s Server) handle() {
 				break
 			}
 			if !err.msg().contains('net: op timed out') {
-				eprintln('accept() failed: $err; skipping')
+				eprintln('accept() failed: ${err}; skipping')
 			}
 			continue
 		}
@@ -81,7 +81,7 @@ pub fn (s &Server) status() State {
 
 fn (mut s Server) parse_and_respond(mut conn net.TcpConn) {
 	defer {
-		conn.close() or { eprintln('close() failed: $err') }
+		conn.close() or { eprintln('close() failed: ${err}') }
 	}
 
 	mut reader := io.new_buffered_reader(reader: conn)
@@ -93,7 +93,7 @@ fn (mut s Server) parse_and_respond(mut conn net.TcpConn) {
 	req := http.parse_request(mut reader) or {
 		$if debug {
 			// only show in debug mode to prevent abuse
-			eprintln('error parsing request: $err')
+			eprintln('error parsing request: ${err}')
 		}
 		return
 	}
@@ -101,12 +101,12 @@ fn (mut s Server) parse_and_respond(mut conn net.TcpConn) {
 	if resp.version() == .unknown {
 		resp.set_version(req.version)
 	}
-	conn.write(resp.bytes()) or { eprintln('error sending response: $err') }
+	conn.write(resp.bytes()) or { eprintln('error sending response: ${err}') }
 }
 
 // set_state sets current state in a thread safe way
 fn (mut s Server) set_state(state State) {
-	lock  {
+	lock {
 		s.state = state
 	}
 }
@@ -117,9 +117,9 @@ pub struct DebugHandler {}
 
 fn (d DebugHandler) handle(req http.Request) http.Response {
 	$if debug {
-		eprintln('[$time.now()] $req.method $req.url\n\r$req.header\n\r$req.data - 200 OK')
+		eprintln('[${time.now()}] ${req.method} ${req.url}\n\r${req.header}\n\r${req.data} - 200 OK')
 	} $else {
-		eprintln('[$time.now()] $req.method $req.url - 200')
+		eprintln('[${time.now()}] ${req.method} ${req.url} - 200')
 	}
 	mut r := http.Response{
 		body: req.data

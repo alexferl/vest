@@ -27,7 +27,7 @@ pub mut:
 
 // json will attempt to decode the body to json
 // with the provided struct.
-pub fn (r Response) json<T>() ?T {
+pub fn (r Response) json[T]() !T {
 	return json.decode(T, r.body)
 }
 
@@ -46,10 +46,10 @@ pub fn new(opt ...ClientOption) &Client {
 }
 
 // new_request creates a new Request.
-pub fn (c &Client) new_request(ctx context.Context, method http.Method, url string, body io.Reader) ?&Request {
+pub fn (c &Client) new_request(ctx context.Context, method http.Method, url string, body io.Reader) !&Request {
 	mut u := url
 	if c.opts.base_url != '' {
-		u = '$c.opts.base_url$url'
+		u = '${c.opts.base_url}${url}'
 	}
 
 	mut headers := map[string]string{}
@@ -76,12 +76,12 @@ pub fn (c &Client) new_request(ctx context.Context, method http.Method, url stri
 		cookies[k] = v
 	}
 
-	data := io.read_all(reader: body)?
+	data := io.read_all(reader: body)!
 
 	return &Request{
 		version: c.opts.version
 		method: method
-		header: http.new_custom_header_from_map(headers)?
+		header: http.new_custom_header_from_map(headers)!
 		cookies: cookies
 		data: data.bytestr()
 		url: u
@@ -97,15 +97,17 @@ pub fn (c &Client) new_request(ctx context.Context, method http.Method, url stri
 }
 
 // do sends a Request and returns a Response.
-pub fn (c &Client) do(mut req Request) ?&Response {
+pub fn (c &Client) do(mut req Request) !&Response {
 	unsafe {
-		if c.opts.before_request != nil {
-			c.opts.before_request(mut req)?
+		if c.opts.before_request.len > 0 {
+			for f in c.opts.before_request {
+				f(mut req)!
+			}
 		}
 	}
 	resp_ch := chan http.Response{}
 	err_ch := chan IError{}
-	go fn (resp_ch chan http.Response, err_ch chan IError, mut req Request) ? {
+	go fn (resp_ch chan http.Response, err_ch chan IError, mut req Request) ! {
 		resp := req.do() or {
 			err_ch <- err
 			return
@@ -122,8 +124,10 @@ pub fn (c &Client) do(mut req Request) ?&Response {
 		resp := <-resp_ch {
 			mut r := &Response{resp, req}
 			unsafe {
-				if c.opts.after_request != nil {
-					c.opts.after_request(mut r)?
+				if c.opts.after_request.len > 0 {
+					for f in c.opts.after_request {
+						f(mut r)!
+					}
 				}
 			}
 			return r
@@ -133,52 +137,52 @@ pub fn (c &Client) do(mut req Request) ?&Response {
 		}
 	}
 
-	return none
+	return error('error running request')
 }
 
 // get sends a GET request and returns a Response.
-pub fn (c &Client) get(ctx context.Context, url string) ?&Response {
-	mut req := c.new_request(ctx, http.Method.get, url, bytes.new_buffer([]u8{}))?
+pub fn (c &Client) get(ctx context.Context, url string) !&Response {
+	mut req := c.new_request(ctx, http.Method.get, url, bytes.new_buffer([]u8{}))!
 	return c.do(mut req)
 }
 
 // post sends a POST request and returns a Response.
-pub fn (c &Client) post(ctx context.Context, url string, body io.Reader) ?&Response {
-	mut req := c.new_request(ctx, http.Method.post, url, body)?
+pub fn (c &Client) post(ctx context.Context, url string, body io.Reader) !&Response {
+	mut req := c.new_request(ctx, http.Method.post, url, body)!
 	return c.do(mut req)
 }
 
 // put sends a PUT request and returns a Response.
-pub fn (c &Client) put(ctx context.Context, url string, body io.Reader) ?&Response {
-	mut req := c.new_request(ctx, http.Method.put, url, body)?
+pub fn (c &Client) put(ctx context.Context, url string, body io.Reader) !&Response {
+	mut req := c.new_request(ctx, http.Method.put, url, body)!
 	return c.do(mut req)
 }
 
 // head sends a HEAD request and returns a Response.
-pub fn (c &Client) head(ctx context.Context, url string) ?&Response {
-	mut req := c.new_request(ctx, http.Method.head, url, bytes.new_buffer([]u8{}))?
+pub fn (c &Client) head(ctx context.Context, url string) !&Response {
+	mut req := c.new_request(ctx, http.Method.head, url, bytes.new_buffer([]u8{}))!
 	return c.do(mut req)
 }
 
 // delete sends a DELETE request and returns a Response.
-pub fn (c &Client) delete(ctx context.Context, url string) ?&Response {
-	mut req := c.new_request(ctx, http.Method.delete, url, bytes.new_buffer([]u8{}))?
+pub fn (c &Client) delete(ctx context.Context, url string) !&Response {
+	mut req := c.new_request(ctx, http.Method.delete, url, bytes.new_buffer([]u8{}))!
 	return c.do(mut req)
 }
 
 // options sends a OPTIONS request and returns a Response.
-pub fn (c &Client) options(ctx context.Context, url string) ?&Response {
-	mut req := c.new_request(ctx, http.Method.options, url, bytes.new_buffer([]u8{}))?
+pub fn (c &Client) options(ctx context.Context, url string) !&Response {
+	mut req := c.new_request(ctx, http.Method.options, url, bytes.new_buffer([]u8{}))!
 	return c.do(mut req)
 }
 
 // patch sends a PATCH request and returns a Response.
-pub fn (c &Client) patch(ctx context.Context, url string, body io.Reader) ?&Response {
-	mut req := c.new_request(ctx, http.Method.patch, url, body)?
+pub fn (c &Client) patch(ctx context.Context, url string, body io.Reader) !&Response {
+	mut req := c.new_request(ctx, http.Method.patch, url, body)!
 	return c.do(mut req)
 }
 
 fn get_user_agent() string {
 	vm := vmod.decode(@VMOD_FILE) or { panic(err) }
-	return '$vm.name/$vm.version'
+	return '${vm.name}/${vm.version}'
 }

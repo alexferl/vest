@@ -31,7 +31,7 @@ fn main() {
 		return
 	}
 
-	mut r := resp.json<Response>() or {
+	mut r := resp.json[Response]() or {
 		eprintln('Failed to parse json')
 		return
 	}

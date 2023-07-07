@@ -27,22 +27,44 @@ fn test_with_content_type() {
 	assert s == opts.content_type
 }
 
-fn before_test(mut req Request) ? {}
+fn before_test(mut req Request) ! {}
 
 fn test_with_before_request() {
 	mut opts := Options{}
 	with_before_request(before_test).apply(mut opts)
 
-	assert before_test == opts.before_request
+	assert before_test == opts.before_request[0]
 }
 
-fn after_test(mut resp Response) ? {}
+fn before_test2(mut req Request) ! {}
+
+fn test_with_before_request_multiple() {
+	mut opts := Options{}
+	with_before_request(before_test).apply(mut opts)
+	with_before_request(before_test2).apply(mut opts)
+
+	assert before_test == opts.before_request[0]
+	assert before_test2 == opts.before_request[1]
+}
+
+fn after_test(mut resp Response) ! {}
 
 fn test_with_after_request() {
 	mut opts := Options{}
 	with_after_request(after_test).apply(mut opts)
 
-	assert after_test == opts.after_request
+	assert after_test == opts.after_request[0]
+}
+
+fn after_test2(mut resp Response) ! {}
+
+fn test_with_after_request_multiple() {
+	mut opts := Options{}
+	with_after_request(after_test).apply(mut opts)
+	with_after_request(after_test2).apply(mut opts)
+
+	assert after_test == opts.after_request[0]
+	assert after_test2 == opts.after_request[1]
 }
 
 fn test_with_auth() {

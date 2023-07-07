@@ -7,11 +7,11 @@ import time
 import bytes
 import testing
 
-fn before(mut req Request) ? {
+fn before(mut req Request) ! {
 	req.version = http.Version.v2_0
 }
 
-fn after(mut resp Response) ? {
+fn after(mut resp Response) ! {
 	resp.status_code = http.Status.created.int()
 }
 
@@ -47,10 +47,10 @@ fn test_new_request() {
 	}
 
 	assert method == req.method
-	assert '$url$endpoint' == req.url
-	assert content_type == req.header.get(http.CommonHeader.content_type)?
+	assert '${url}${endpoint}' == req.url
+	assert content_type == req.header.get(http.CommonHeader.content_type)!
 	assert version == req.version
-	assert headers['X-Custom'] == req.header.get_custom('X-Custom')?
+	assert headers['X-Custom'] == req.header.get_custom('X-Custom')!
 	assert cookies == req.cookies
 	assert read_timeout == req.read_timeout
 	assert write_timeout == req.write_timeout
@@ -113,7 +113,7 @@ fn test_get() {
 	s.start() or { panic(err) }
 
 	c := new()
-	resp := c.get(context.background(), s.url)?
+	resp := c.get(context.background(), s.url)!
 
 	assert method == resp.request.method
 	assert body == resp.body
@@ -129,7 +129,7 @@ fn test_post() {
 	s.start() or { panic(err) }
 
 	c := new()
-	resp := c.post(context.background(), s.url, bytes.new_buffer(body.bytes()))?
+	resp := c.post(context.background(), s.url, bytes.new_buffer(body.bytes()))!
 
 	assert method == resp.request.method
 	assert body == resp.body
@@ -152,9 +152,9 @@ fn test_post_json() {
 	s.start() or { panic(err) }
 
 	c := new()
-	resp := c.post(context.background(), s.url, bytes.new_buffer(body.bytes()))?
+	resp := c.post(context.background(), s.url, bytes.new_buffer(body.bytes()))!
 
-	assert hello == resp.json<Hello>()?
+	assert hello == resp.json[Hello]()!
 }
 
 fn test_put() {
@@ -239,7 +239,7 @@ fn test_after_request() {
 	s.start() or { panic(err) }
 
 	c := new(with_after_request(after))
-	resp := c.get(context.background(), s.url)?
+	resp := c.get(context.background(), s.url)!
 
 	assert http.Status.created.int() == resp.status_code
 }

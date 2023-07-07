@@ -3,9 +3,9 @@ module vest
 import net.http
 import time
 
-type BeforeFn = fn (mut Request) ?
+type BeforeFn = fn (mut Request) !
 
-type AfterFn = fn (mut Response) ?
+type AfterFn = fn (mut Response) !
 
 struct Options {
 mut:
@@ -13,8 +13,8 @@ mut:
 	accept         string = 'application/json, */*;q=0.5'
 	content_type   string = 'application/json'
 	auth           string
-	before_request BeforeFn = unsafe { nil }
-	after_request  AfterFn  = unsafe { nil }
+	before_request []BeforeFn = []
+	after_request  []AfterFn  = []
 
 	version        http.Version = http.Version.v1_1
 	headers        map[string]string
@@ -83,17 +83,17 @@ pub fn with_auth(s string) ClientOption {
 
 // with_before_request sets a function that will be run
 // after the request is built, but before it's sent.
-pub fn with_before_request(f fn (mut req Request) ?) ClientOption {
+pub fn with_before_request(f fn (mut req Request) !) ClientOption {
 	return new_fn_option(fn [f] (mut o Options) {
-		o.before_request = f
+		o.before_request << f
 	})
 }
 
 // with_after_request sets a function that will be run
 // after the request is run, before the response is returned.
-pub fn with_after_request(f fn (mut req Response) ?) ClientOption {
+pub fn with_after_request(f fn (mut req Response) !) ClientOption {
 	return new_fn_option(fn [f] (mut o Options) {
-		o.after_request = f
+		o.after_request << f
 	})
 }
 
