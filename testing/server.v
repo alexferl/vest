@@ -69,7 +69,7 @@ pub fn (mut s Server) stop() {
 	s.set_state(.stopped)
 }
 
-// close immediatly closes the port and signals the server that it has been closed
+// close immediately closes the port and signals the server that it has been closed
 pub fn (mut s Server) close() {
 	s.set_state(.closed)
 	s.listener.close() or { panic(err) }
