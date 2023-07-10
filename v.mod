@@ -1,6 +1,6 @@
 Module {
 	name: 'vest'
-	description: 'V REST client'
+	description: 'A REST client in V'
 	version: '0.2.0'
 	license: 'MIT'
 	dependencies: []
