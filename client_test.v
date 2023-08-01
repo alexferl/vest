@@ -36,11 +36,25 @@ fn test_new_request() {
 	cert_key := 'cert.key'
 	allow_redirect := false
 
-	c := new(with_base_url(url), with_accept(accept), with_content_type(content_type),
-		with_before_request(before), with_after_request(after), with_version(version),
-		with_headers(headers), with_cookies(cookies), with_read_timeout(read_timeout),
-		with_write_timeout(write_timeout), with_validate(validate), with_root_ca(root_ca),
-		with_cert(cert), with_cert_key(cert_key), with_allow_redirect(allow_redirect))
+	// vfmt off
+	c := new(
+		with_base_url(url),
+		with_accept(accept),
+		with_content_type(content_type),
+		with_before_request(before),
+		with_after_request(after),
+		with_version(version),
+		with_headers(headers),
+		with_cookies(cookies),
+		with_read_timeout(read_timeout),
+		with_write_timeout(write_timeout),
+		with_validate(validate),
+		with_root_ca(root_ca),
+		with_cert(cert),
+		with_cert_key(cert_key),
+		with_allow_redirect(allow_redirect)
+	)
+	// vfmt on
 
 	req := c.new_request(context.background(), method, endpoint, bytes.new_buffer([]u8{})) or {
 		panic(err)

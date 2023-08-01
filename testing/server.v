@@ -1,4 +1,4 @@
-module httptest
+module testing
 
 import io
 import net
@@ -40,7 +40,7 @@ pub fn (mut s Server) start() ! {
 	s.listener.set_accept_timeout(s.accept_timeout)
 	s.set_state(.running)
 
-	go s.handle()
+	spawn s.handle()
 }
 
 fn (mut s Server) handle() {

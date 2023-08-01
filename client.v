@@ -107,7 +107,7 @@ pub fn (c &Client) do(mut req Request) !&Response {
 	}
 	resp_ch := chan http.Response{}
 	err_ch := chan IError{}
-	go fn (resp_ch chan http.Response, err_ch chan IError, mut req Request) ! {
+	spawn fn (resp_ch chan http.Response, err_ch chan IError, mut req Request) ! {
 		resp := req.do() or {
 			err_ch <- err
 			return
